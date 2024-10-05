@@ -17,14 +17,15 @@ def get_weekly_papers(topic, query, max_results=2):
     """
     content = {}
     one_week_ago = datetime.datetime.now() - datetime.timedelta(days=7)  # 一周前的日期
-    
+    # Construct the default API client.
+    client = arxiv.Client()
     search_engine = arxiv.Search(
         query=query,
         max_results=max_results,
         sort_by=arxiv.SortCriterion.SubmittedDate
     )
 
-    for result in search_engine.results():
+    for result in client.results(search_engine):
         publish_time = result.published.date()
         
         # 只处理最近一周内发布的文章
@@ -46,7 +47,7 @@ def get_weekly_papers(topic, query, max_results=2):
 def update_json_file(filename, data_all):
     if os.path.exists(filename):
         with open(filename, "r") as f:
-            json_data = json.load(f) if f.read() else {}
+            json_data = json.load(f)
     else:
         json_data = {}
 
@@ -73,7 +74,7 @@ def json_to_md(filename):
         f.write("")  # 清空文件内容
 
     with open(filename, "r") as f:
-        data = json.load(f) if f.read() else {}
+        data = json.load(f)
 
     with open(md_filename, "a") as f:
         f.write(f"## Updated on {DateNow}\n\n")
